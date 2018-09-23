@@ -8,5 +8,7 @@ Shows difference between files on bit-level
 ## Use
 `./bitdiff <file_1> <file_2>`
 
-### TODO
-- Everything
+## Development
+For TODO's grep whole content for 'TODO' <br />
+Be aware of 'WARNING'!
+

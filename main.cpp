@@ -4,17 +4,15 @@
 
 #include "main.h" //TODO: divide functions to separate files
 
-//TODO: documentate code for god's sake, i can't even remember what "bitsInByte" is.
-
 bitsInByte byteToBit(char byteIn){
 	unsigned char mask = 1;
 	char buffer[8];
 	for(int i=7; i>=0; i--){
-		buffer[i] = (byteIn & mask)?'1':'0';
-		mask = mask << 1;
+		buffer[i] = (byteIn & mask)?'1':'0';	// check for logical AND with mask
+		mask = mask << 1;			// then, shift mask by 1
 	}
 	
-	bitsInByte totallyThis;
+	bitsInByte totallyThis;		// generate structure with bits as return object
 	for(int i=0; i<8; i++){
 		totallyThis.bits[i] = buffer[i];
 	};
@@ -24,17 +22,19 @@ bitsInByte byteToBit(char byteIn){
 bytesOutputWithData fileToBytes(char* fileName){
 	FILE *fp;
 	fp = fopen(fileName, "r");
-	fseek(fp, 0L, SEEK_END);
+
+	fseek(fp, 0L, SEEK_END);		// check size of file (in bytes)
 	unsigned long long size = ftell(fp);
 	rewind(fp);
+	
 	char* buffer = new char[size];
 
 	for(unsigned long long i=0;i<size;i++){
-		buffer[i] = fgetc(fp);
+		buffer[i] = fgetc(fp);		// get file content to memory, byte by byte
 	}
 	fclose(fp);
 
-	bytesOutputWithData totallyThis;
+	bytesOutputWithData totallyThis;	// return object
 	totallyThis.size = size;
 	totallyThis.bufferPointer = buffer;
 	return totallyThis;
@@ -42,18 +42,21 @@ bytesOutputWithData fileToBytes(char* fileName){
 
 char* buildAndPrintLine(char* bitsA, char* bitsB, unsigned long long address){
 	char* totallyThis = new char[29];
-	for(int i = 0; i<29; i++){
+
+	for(int i = 0; i<29; i++){		// clear memory
 		totallyThis[i] = ' ';
 	}
 
-	char* p_totallyThis = reinterpret_cast<char*>(totallyThis); //TODO: check if this has any sense
-	
+	char* p_totallyThis = totallyThis; 	// make pointer to buildAndPrintLine return object to paste address and bits 
+		
 	strncpy(p_totallyThis, unsignedlonglongToFormattedHex(address), 10);
-	p_totallyThis += 12;
-	strncpy(p_totallyThis, bitsA, 8);
+	p_totallyThis += 11;			// <- offset
+	strncpy(p_totallyThis, bitsA, 8);	// <- paste with offset
 	p_totallyThis += 9;
-	strncpy(p_totallyThis, bitsB, 8); //TODO: make prettier output, show which bit changed
-
+	strncpy(p_totallyThis, bitsB, 8);
+	p_totallyThis += 8;
+	strncpy(p_totallyThis, "\0", 1); 	// this fixes random character on the end
+	
 	return totallyThis;
 }
 
@@ -66,7 +69,7 @@ char* unsignedlonglongToFormattedHex(unsigned long long longlongIn){
 	totallyThis[1] = 'x';
 
 	char buffer[9];
-	sprintf(buffer, "%0x", (int)longlongIn+1); //address offset
+	sprintf(buffer, "%0x", (int)longlongIn+1); //address offset [WARNING: casting unsigned long long to int, may bottleneck and overflow]
 	
 	//check where is null-terminator, calculate size
 	int size = 0;
@@ -90,7 +93,7 @@ int main(){ //TODO: let only main() be in main.cpp
 	} //TODO: use size which is longer
 	  //TODO: throw some error for debuging in future
 	
-	int howMuch = 0; //not-TODO: How many software people does it take to screw in a light bulb? None. That's a hardware problem.
+	int howMany = 0; //not-TODO: How many software people does it take to screw in a light bulb? None. That's a hardware problem.
 
 	for(unsigned long long a = 0; a<fileA.size; a++){
 		if(fileA.bufferPointer[a] != fileB.bufferPointer[a]){
@@ -98,10 +101,10 @@ int main(){ //TODO: let only main() be in main.cpp
 			bitsInByte bitsB = byteToBit(fileB.bufferPointer[a]);
 			std::cout << buildAndPrintLine(bitsA.bits, bitsB.bits, a);
 			std::cout << '\n';
-			howMuch++;
+			howMany++;
 		}
 	}
 	
-	std::cout << "\nTotally diffs found: " << howMuch << "\n";
+	std::cout << "\nTotally diffs found: " << howMany << "\n";
 	return 0;
 }
