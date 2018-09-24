@@ -10,7 +10,8 @@ char* unsignedlonglongToFormattedHex(unsigned long long longlongIn){
 	totallyThis[1] = 'x';
 
 	char buffer[9];
-	sprintf(buffer, "%0x", (int)longlongIn+1); //address offset [WARNING: casting unsigned long long to int, may bottleneck and overflow]
+	sprintf(buffer, "%0x", (int)longlongIn+1);	//address offset [WARNING: casting unsigned long long to int, may overflow]
+							// "Believing in something can help you do amazing things. But if that belief is based on a lie, eventually, it's gonna lead to real trouble." ~Applejack
 
 	//check where is null-terminator, calculate size
 	int size = 0;
