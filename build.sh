@@ -1,2 +1,4 @@
 #!/bin/sh 
-g++ -o bitdiff main.cpp
+
+#TODO fix me plz
+g++ -o bitdiff -I src/includes src/main.cpp src/io.cpp src/math.cpp
