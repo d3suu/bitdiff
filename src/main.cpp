@@ -1,42 +1,31 @@
-#include <iostream> //std::cout
+#include <unistd.h> //getopt
+#include <stdlib.h> //abort
 
 #include "exceptions.h"
-#include "io.h"
-#include "math.h"
+#include "bitdiff.h"
 
-int main(){
-	bytesOutputWithData fileA = fileToBytes((char*)"testa.txt"); //TODO: plz use getopt
-	bytesOutputWithData fileB = fileToBytes((char*)"testb.txt");
-	
-	unsigned long long longerSize = 0;
-	bool differentSize = false;
+int main(int argc, char** argv){
+	int c;
+	char* fileAName = (char*)"testa.txt"; // WIP static constants until no file testing in bitdiff() function
+	char* fileBName = (char*)"testb.txt";
 
-	if(fileA.size != fileB.size){
-		std::cout << "size of files does not match! using size of first file.\n";
-		differentSize = true;
-		//throw exceptions::ERR_SIZE(); // WIP
-		if(fileA.size > fileB.size){
-			longerSize = fileA.size;
-		}else{
-			longerSize = fileB.size;
-		}
-	}else{
-		longerSize = fileA.size;
-	}
-	
-	int howMany = 0; // how many diffs
-
-	for(unsigned long long a = 0; a<longerSize; a++){
-		if(fileA.bufferPointer[a] != fileB.bufferPointer[a]){
-			bitsInByte bitsA = byteToBit(fileA.bufferPointer[a]);
-			bitsInByte bitsB = byteToBit(fileB.bufferPointer[a]);
-			std::cout << buildAndPrintLine(bitsA.bits, bitsB.bits, a);
-			std::cout << '\n';
-			howMany++;
-			a++; // offset for found diffs so bitdiff does not interpret byte shifts as diffs
+	while((c = getopt(argc, argv, "a:b:h")) != -1){ // TODO make arguments for type of output size type (normally hex), output method (stdout, file output), formatting of output (human readable, easy-scraping type, machine type)
+		switch(c){
+			case 'a':
+				fileAName = optarg;
+				break;
+			case 'b':
+				fileBName = optarg;
+				break;
+			case 'h':
+				//help(); WIP
+				// TODO help should output some help text and kill process
+				break;
+			default:
+				abort();
 		}
 	}
-	
-	std::cout << "\nTotally diffs found: " << howMany << "\n";
+
+	bitdiff(fileAName, fileBName);
 	return 0;
 }
